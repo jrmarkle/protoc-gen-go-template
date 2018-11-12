@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/jrmarkle/protoc-gen-go-template/generator"
 	"io/ioutil"
 	"os"
@@ -14,6 +13,7 @@ func (osFileSystem) ReadFile(filename string) ([]byte, error) { return ioutil.Re
 func main() {
 	err := generator.NewGenerator(os.Stdin, os.Stdout, osFileSystem{}).Run()
 	if err != nil {
-		fmt.Println("Failed: ", err)
+		os.Stderr.WriteString("Failed: " + err.Error() + "\n")
+		os.Exit(1)
 	}
 }

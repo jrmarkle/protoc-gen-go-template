@@ -266,21 +266,3 @@ func TestFormatInvalidCode(t *testing.T) {
 		File:  nil,
 	})
 }
-
-func TestEmptyOutput(t *testing.T) {
-	g, input := makeGenerator()
-
-	const protoFileName = "test.proto"
-	writeRequest(t, input, &plugin.CodeGeneratorRequest{
-		FileToGenerate: []string{protoFileName},
-		Parameter:      proto.String("empty,format"),
-		ProtoFile: []*descriptor.FileDescriptorProto{{
-			Name: proto.String(protoFileName),
-		}},
-	})
-
-	expectOutput(t, g, &plugin.CodeGeneratorResponse{
-		Error: nil,
-		File:  nil,
-	})
-}

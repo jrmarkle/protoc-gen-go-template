@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -49,8 +50,12 @@ func (g *Generator) Run() error {
 		return fmt.Errorf("error parsing input: %s", err)
 	}
 
+	if len(request.GetParameter()) == 0 {
+		return errors.New("empty parameters")
+	}
+
 	templateName, templateData := g.parseParameters(request.GetParameter())
-	if len(templateName) == 0 || len(templateData) == 0 {
+	if len(templateName) == 0 {
 		return fmt.Errorf("no template files in the parameters %q", request.GetParameter())
 	}
 
@@ -79,10 +84,6 @@ func (g *Generator) Run() error {
 		if err != nil {
 			response.Error = proto.String(err.Error())
 			break
-		}
-
-		if len(fileResponse.GetContent()) == 0 {
-			continue
 		}
 
 		response.File = append(response.File, fileResponse)
@@ -161,9 +162,6 @@ func formatGoSource(in []byte) ([]byte, error) {
 	out, err := format.Source(bytes.TrimSpace(in))
 	if err != nil {
 		return nil, err
-	}
-	if len(out) == 0 {
-		return nil, nil
 	}
 	return out, nil
 }
