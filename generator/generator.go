@@ -14,10 +14,12 @@ import (
 	"text/template"
 )
 
+// FileReader is an interface for a Generator to read files
 type FileReader interface {
 	ReadFile(filename string) ([]byte, error)
 }
 
+// Generator reads in a CodeGeneratorRequest and writes out a CodeGeneratorResponse
 type Generator struct {
 	in           io.Reader
 	out          io.Writer
@@ -25,6 +27,7 @@ type Generator struct {
 	formatOutput bool
 }
 
+// NewGenerator creates a new Generator
 func NewGenerator(in io.Reader, out io.Writer, fileReader FileReader) *Generator {
 	return &Generator{
 		in:           in,
@@ -34,6 +37,7 @@ func NewGenerator(in io.Reader, out io.Writer, fileReader FileReader) *Generator
 	}
 }
 
+// Run the Generator to read the input and generate the output
 func (g *Generator) Run() error {
 	input, err := ioutil.ReadAll(g.in)
 	if err != nil {
@@ -87,7 +91,7 @@ func (g *Generator) Run() error {
 	{
 		responseData, err := proto.Marshal(response)
 		if err != nil {
-			return fmt.Errorf("error marshalling ouput: %s", err)
+			return fmt.Errorf("error marshalling output: %s", err)
 		}
 
 		if _, err := g.out.Write(responseData); err != nil {
@@ -96,7 +100,6 @@ func (g *Generator) Run() error {
 	}
 	return nil
 }
-
 
 // parseParameters handles the command-line parameters passed in via protoc.
 // The parameters must be comma-separated and must contain a valid file name
