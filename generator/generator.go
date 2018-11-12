@@ -25,8 +25,8 @@ type Generator struct {
 	formatOutput bool
 }
 
-func NewGenerator(in io.Reader, out io.Writer, fileReader FileReader) Generator {
-	return Generator{
+func NewGenerator(in io.Reader, out io.Writer, fileReader FileReader) *Generator {
+	return &Generator{
 		in:           in,
 		out:          out,
 		fileReader:   fileReader,
@@ -34,7 +34,7 @@ func NewGenerator(in io.Reader, out io.Writer, fileReader FileReader) Generator 
 	}
 }
 
-func (g Generator) Run() error {
+func (g *Generator) Run() error {
 	input, err := ioutil.ReadAll(g.in)
 	if err != nil {
 		return fmt.Errorf("error reading input: %s", err)
@@ -71,13 +71,13 @@ func (g Generator) Run() error {
 			return fmt.Errorf("%s descriptor not found", fileName)
 		}
 
-		fileResponse, err := applyTemplate(fileTemplate, protoFile, g.formatOutput)
+		fileResponse, err := g.applyTemplate(fileTemplate, protoFile)
 		if err != nil {
 			response.Error = proto.String(err.Error())
 			break
 		}
 
-		if fileResponse == nil {
+		if len(fileResponse.GetContent()) == 0 {
 			continue
 		}
 
@@ -87,7 +87,7 @@ func (g Generator) Run() error {
 	{
 		responseData, err := proto.Marshal(response)
 		if err != nil {
-			return fmt.Errorf("error marshalling ouput: %s")
+			return fmt.Errorf("error marshalling ouput: %s", err)
 		}
 
 		if _, err := g.out.Write(responseData); err != nil {
@@ -102,7 +102,7 @@ func (g Generator) Run() error {
 // The parameters must be comma-separated and must contain a valid file name
 // for the go template. Additional valid parameters:
 //  - format: apply gofmt style fixes to the output
-func (g Generator) parseParameters(parameters string) (templateName string, templateData []byte) {
+func (g *Generator) parseParameters(parameters string) (templateName string, templateData []byte) {
 	for _, parameter := range strings.Split(parameters, ",") {
 		switch parameter {
 		case "format":
@@ -132,7 +132,7 @@ func (g Generator) parseParameters(parameters string) (templateName string, temp
 	return
 }
 
-func applyTemplate(t *template.Template, input *descriptor.FileDescriptorProto, format bool) (*plugin.CodeGeneratorResponse_File, error) {
+func (g *Generator) applyTemplate(t *template.Template, input *descriptor.FileDescriptorProto) (*plugin.CodeGeneratorResponse_File, error) {
 	buf := new(bytes.Buffer)
 	err := t.Execute(buf, input)
 	if err != nil {
@@ -140,7 +140,7 @@ func applyTemplate(t *template.Template, input *descriptor.FileDescriptorProto, 
 	}
 
 	content := buf.Bytes()
-	if format {
+	if g.formatOutput {
 		var err error
 		content, err = formatGoSource(content)
 		if err != nil {

@@ -17,7 +17,3 @@ func main() {
 		fmt.Println("Failed: ", err)
 	}
 }
-
-
-
-
