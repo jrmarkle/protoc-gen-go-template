@@ -104,7 +104,10 @@ func TestFailInput(t *testing.T) {
 
 func TestBadInput(t *testing.T) {
 	g, input := makeGenerator()
-	input.Write([]byte("foo"))
+	_, err := input.Write([]byte("foo"))
+	if err != nil {
+		t.Fatal(err)
+	}
 	expectFail(t, g)
 }
 
