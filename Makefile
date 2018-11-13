@@ -17,3 +17,9 @@ check: test lint
 
 install:
 	go install $(module)
+
+coverage: $(go_bin)/goveralls
+	goveralls -service=travis-ci
+
+$(go_bin)/goveralls:
+	go install github.com/mattn/goveralls

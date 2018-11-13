@@ -9,6 +9,9 @@ go:
 git:
   depth: 1
 
+before_install:
+
+
 script:
-  - make install
   - make check
+  - make coverage

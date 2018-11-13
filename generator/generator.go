@@ -2,7 +2,6 @@ package generator
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
@@ -48,10 +47,6 @@ func (g *Generator) Run() error {
 	request := new(plugin.CodeGeneratorRequest)
 	if err := proto.Unmarshal(input, request); err != nil {
 		return fmt.Errorf("error parsing input: %s", err)
-	}
-
-	if len(request.GetParameter()) == 0 {
-		return errors.New("empty parameters")
 	}
 
 	templateName, templateData := g.parseParameters(request.GetParameter())
