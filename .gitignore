@@ -1,6 +1,5 @@
 # vim temporary files
 *.swp
 
-# IntelliJ idea project files
+# GoLand project files
 .idea
-*.iml
